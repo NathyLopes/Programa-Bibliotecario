@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Livros</title>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <h1 class="logo">Livros</h1>
+  </div>
+</header>
+
+<main class="container main-home">
+  <nav class="sub-nav">
+    <a href="/">Início</a>
+    <a href="/alunos">Alunos</a>
+    <a href="/emprestimos">Empréstimos</a>
+  </nav>
+
+  <section class="card">
+    <h2>Listar Livros</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Editora</th>
+            <th>Exemplares</th>
+          </tr>
+        </thead>
+        <tbody id="tb-livros">
+          <tr><td colspan="5" class="muted">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Cadastrar Livro</h2>
+    <form id="form-livro">
+      <div class="form-row">
+        <label>Título</label>
+        <input name="titulo" required>
+      </div>
+
+      <div class="form-row">
+        <label>Autor</label>
+        <input name="autor" required>
+      </div>
+
+      <div class="form-row-inline">
+        <div class="form-row small">
+          <label>Editora</label>
+          <input name="editora">
+        </div>
+        <div class="form-row small">
+          <label>Ano</label>
+          <input type="number" name="ano_publicacao" min="1000" max="9999">
+        </div>
+        <div class="form-row small">
+          <label>Exemplares</label>
+          <input type="number" name="exemplares_totais" min="1" value="1" required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn primary">Cadastrar</button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<script>
+async function carregarLivros() {
+  const res = await fetch('/api/livros')
+  const dados = await res.json()
+  const tbody = document.getElementById('tb-livros')
+
+  tbody.innerHTML = ''
+
+  if (!dados.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="muted">Nenhum livro encontrado.</td></tr>'
+    return
+  }
+
+  dados.forEach(l => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${l.codigo}</td>
+        <td>${l.titulo}</td>
+        <td>${l.autor}</td>
+        <td>${l.editora ?? ''}</td>
+        <td>${l.exemplares_totais}</td>
+      </tr>
+    `
+  })
+}
+
+document.getElementById('form-livro').addEventListener('submit', async (e) => {
+  e.preventDefault()
+
+  const form = new FormData(e.target)
+  const dados = Object.fromEntries(form.entries())
+
+  await fetch('/api/livros', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(dados)
+  })
+
+  e.target.reset()
+  carregarLivros()
+})
+
+carregarLivros()
+</script>
+
+</body>
+</html>

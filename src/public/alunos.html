@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Alunos</title>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <h1 class="logo">Alunos</h1>
+  </div>
+</header>
+
+<main class="container main-home">
+  <nav class="sub-nav">
+    <a href="/">Início</a>
+    <a href="/livros">Livros</a>
+    <a href="/emprestimos">Empréstimos</a>
+  </nav>
+
+  <section class="card">
+    <h2>Alunos que mais leem</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Total de empréstimos</th>
+          </tr>
+        </thead>
+        <tbody id="tb-alunos">
+          <tr><td colspan="3" class="muted">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+async function carregarAlunos() {
+  const res = await fetch('/api/alunos/top')
+  const dados = await res.json()
+  const tbody = document.getElementById('tb-alunos')
+
+  tbody.innerHTML = ''
+
+  if (!dados.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="muted">Nenhum aluno encontrado.</td></tr>'
+    return
+  }
+
+  dados.forEach(a => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${a.codigo}</td>
+        <td>${a.nome}</td>
+        <td>${a.total_emprestimos}</td>
+      </tr>
+    `
+  })
+}
+
+carregarAlunos()
+</script>
+
+</body>
+</html>

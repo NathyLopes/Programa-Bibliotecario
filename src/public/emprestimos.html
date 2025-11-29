@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Empréstimos</title>
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <h1 class="logo">Empréstimos</h1>
+  </div>
+</header>
+
+<main class="container main-home">
+  <nav class="sub-nav">
+    <a href="/">Início</a>
+    <a href="/livros">Livros</a>
+    <a href="/alunos">Alunos</a>
+  </nav>
+
+  <section class="card">
+    <h2>Livros emprestados</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Aluno</th>
+            <th>Livro</th>
+            <th>Emprestado em</th>
+            <th>Devolução</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tb-emprestimos">
+          <tr><td colspan="6" class="muted">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Livros não devolvidos</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Livro</th>
+            <th>Data empréstimo</th>
+          </tr>
+        </thead>
+        <tbody id="tb-nao-devolvidos">
+          <tr><td colspan="3" class="muted">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+async function carregarEmprestados() {
+  const r = await fetch('/api/emprestados')
+  const dados = await r.json()
+  const tbody = document.getElementById('tb-emprestimos')
+
+  tbody.innerHTML = ''
+
+  if (!dados.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="muted">Nenhum empréstimo.</td></tr>'
+    return
+  }
+
+  dados.forEach(e => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${e.codigo}</td>
+        <td>${e.aluno}</td>
+        <td>${e.titulo}</td>
+        <td>${e.data_emprestimo}</td>
+        <td>${e.data_devolucao ?? '-'}</td>
+        <td>${e.status}</td>
+      </tr>
+    `
+  })
+}
+
+async function carregarNaoDevolvidos() {
+  const r = await fetch('/api/nao-devolvidos')
+  const dados = await r.json()
+  const tbody = document.getElementById('tb-nao-devolvidos')
+
+  tbody.innerHTML = ''
+
+  if (!dados.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="muted">Nenhum pendente.</td></tr>'
+    return
+  }
+
+  dados.forEach(e => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${e.aluno}</td>
+        <td>${e.titulo}</td>
+        <td>${e.data_emprestimo}</td>
+      </tr>
+    `
+  })
+}
+
+carregarEmprestados()
+carregarNaoDevolvidos()
+</script>
+
+</body>
+</html>
